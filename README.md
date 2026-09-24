@@ -1,0 +1,5 @@
+Bom o projeto começou com a criação do banco de dados (Postgres) e sua conexão com o codeigniter (versão 3) através do arquivo config.php na pasta config.
+
+Durante o trajeto meu projeto ocorreu bem até então mas entretanto, a minha conexão com o postgres no dbeaver se dissipou completamente, tentei ir pelo terminal , baixar o arquivo dos drivers (que funcionou depois) e nao adiantava,depois acessei pelo root e finalmente funcionou , quase que meu projeto ia pros ares . Mas  depois disso funcionou como deveria , depois teve alguns problemas com as views em questão de links mas isso logo depois foi resolvido, por fim é o que tenho para dizer.
+
+(Infelizmente ou não,  acabei usando bastante ia no projeto,por que causa de pouco conhecimento que tinha naquele momento , mas consigui aprender algumas coisas.)
