@@ -22,6 +22,10 @@ class Medicos extends CI_Controller {
     }
 
     public function create() {
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('medicos/medico_form', array('medico' => null, 'in_modal' => TRUE));
+            return;
+        }
         $this->load->view('medicos/create');
     }
 
@@ -32,11 +36,18 @@ class Medicos extends CI_Controller {
             'is_unique' => 'Este CRM já está cadastrado no sistema.'
         ));
         $this->form_validation->set_rules('especialidade', 'Especialidade', 'required|trim');
-        $this->form_validation->set_rules('email', 'E-mail', 'valid_email|trim');
+        $this->form_validation->set_rules('cpf', 'CPF', 'required|trim');
+        $this->form_validation->set_rules('telefone', 'Telefone', 'required|trim');
+        $this->form_validation->set_rules('email', 'E-mail', 'trim|required|valid_email');
         $this->form_validation->set_rules('situacao', 'Situação', 'required|in_list[ativo,inativo]');
 
         if ($this->form_validation->run() == FALSE) {
-            $this->load->view('medicos/create');
+            if ($this->input->is_ajax_request()) {
+                $this->load->view('medicos/medico_form', array('medico' => null, 'in_modal' => TRUE));
+            } else {
+                $this->load->view('medicos/create');
+            }
+            return;
         } else {
             $data = array(
                 'nome'          => $this->input->post('nome'),
@@ -50,6 +61,11 @@ class Medicos extends CI_Controller {
 
             $this->Medico_model->insert($data);
             $this->session->set_flashdata('sucesso', 'Médico cadastrado com sucesso!');
+            if ($this->input->is_ajax_request()) {
+                $this->output->set_content_type('application/json');
+                $this->output->set_output(json_encode(array('success' => TRUE)));
+                return;
+            }
             redirect('medicos');
         }
     }
@@ -59,6 +75,11 @@ class Medicos extends CI_Controller {
         if (!$data['medico']) {
             show_404();
         }
+        if ($this->input->is_ajax_request()) {
+            $data['in_modal'] = TRUE;
+            $this->load->view('medicos/medico_form', $data);
+            return;
+        }
         $this->load->view('medicos/edit', $data);
     }
 
@@ -67,7 +88,6 @@ class Medicos extends CI_Controller {
         if (!$medico_atual) {
             show_404();
         }
-
         $this->form_validation->set_rules('nome', 'Nome completo', 'required|trim');
         
         // Se o CRM mudou, valida se o novo é único
@@ -80,12 +100,20 @@ class Medicos extends CI_Controller {
         }
 
         $this->form_validation->set_rules('especialidade', 'Especialidade', 'required|trim');
-        $this->form_validation->set_rules('email', 'E-mail', 'valid_email|trim');
+        $this->form_validation->set_rules('cpf', 'CPF', 'required|trim');
+        $this->form_validation->set_rules('telefone', 'Telefone', 'required|trim');
+        $this->form_validation->set_rules('email', 'E-mail', 'trim|required|valid_email');
         $this->form_validation->set_rules('situacao', 'Situação', 'required|in_list[ativo,inativo]');
 
         if ($this->form_validation->run() == FALSE) {
             $data['medico'] = $medico_atual;
-            $this->load->view('medicos/edit', $data);
+            if ($this->input->is_ajax_request()) {
+                $data['in_modal'] = TRUE;
+                $this->load->view('medicos/medico_form', $data);
+            } else {
+                $this->load->view('medicos/edit', $data);
+            }
+            return;
         } else {
             $data = array(
                 'nome'          => $this->input->post('nome'),
@@ -99,6 +127,11 @@ class Medicos extends CI_Controller {
 
             $this->Medico_model->update($id, $data);
             $this->session->set_flashdata('sucesso', 'Cadastro do médico atualizado com sucesso!');
+            if ($this->input->is_ajax_request()) {
+                $this->output->set_content_type('application/json');
+                $this->output->set_output(json_encode(array('success' => TRUE)));
+                return;
+            }
             redirect('medicos');
         }
     }
@@ -106,11 +139,21 @@ class Medicos extends CI_Controller {
     public function delete($id) {
         $this->Medico_model->delete($id);
         $this->session->set_flashdata('sucesso', 'Médico excluído com sucesso!');
+        if ($this->input->is_ajax_request()) {
+            $this->output->set_content_type('application/json');
+            $this->output->set_output(json_encode(array('success' => TRUE)));
+            return;
+        }
         redirect('medicos');
     }
 
     public function auditoria() {
         $data['auditorias'] = $this->Medico_model->get_auditoria();
         $this->load->view('medicos/auditoria', $data);
+    }
+
+    public function auditoria_conteudo() {
+        $data['auditorias'] = $this->Medico_model->get_auditoria();
+        $this->load->view('medicos/auditoria_conteudo', $data);
     }
 }
